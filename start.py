@@ -1,6 +1,11 @@
 from bottle import static_file,route, run, template, get , post , request
 from tweepy import API,Cursor,TweepError
 
+'''
+Note: This code includes some parts provided by other researches
+'''
+
+
 import geocoder
 geoC = geocoder.Geocoder(dataset='geonames')
 
@@ -33,10 +38,10 @@ def distance(lat1, lon1, lat2, lon2):
 
 def catch_account(accountName):
     global api
-    access_token = "2784918864-O8cwCRjgyWXUZElzRGFEY1c1NM3Pt0RJGIoOiIF"
-    access_token_secret = "w1hRSA7n6cccSHOzCACIo47ALptky3GB3HFvkMelvWysS"
-    consumer_key = "iLH7y24uarb88u9Vq5EN9Dm5d"
-    consumer_secret = "71FCC5qpvyWuJhzAHXtghXa9jlfOffeFGahby6YyzX1gPiuJS3"
+    access_token = ""
+    access_token_secret = ""
+    consumer_key = ""
+    consumer_secret = ""
 
     auth = OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
@@ -44,8 +49,7 @@ def catch_account(accountName):
     api = API(auth)
     stuff = api.user_timeline(screen_name =accountName, count = 100, include_rts = True)
     followers = api.followers(accountName)
-    #print 'followers'
-    #print [f.screen_name for f in followers if api.lookup_friendships(accountName,f.screen_name)]
+
     print len(stuff)
     text = ''
     mentions = []
@@ -180,18 +184,10 @@ def geolocate(text):
     medLon = [classLonMedian[prediction]]
 
     city = lib_grid_search.zoom_search(medLat[0],medLon[0])
-    #    print cc2_bah
      
     probs = clf.predict_proba(X_test)[0]
     preds = probs.argsort()[:-7:-1]
 
-#    probs = clf.predict_proba(X_test)[0]
-#    print probs.argmax()
-#    print max(probs)
-#    #print probs[-10:]
-#    print probs.argsort()[-10:]
-#    preds = probs.argsort()[:-10:-1]
-#    print preds
     X_test = X_test.toarray()[0]
     print X_test
     print type(X_test)
@@ -209,11 +205,7 @@ def geolocate(text):
     print indexes
     #indexes = indexes[0].toarray()
     frEnt = open('entropy-scores.txt','r')
-    #for i in indexes:
-    #    print i,
-    #    print X_test[i],
-    #    print features[i]
-    #feats = tknzr.tokenize(text)
+
     feats = {features[i]:X_test[i] for i in indexes[0]}
     ent = {}
     for line in frEnt:
@@ -239,10 +231,8 @@ def geolocate(text):
 
 
 
-    #print 'feature weights:'
-    #feats = {features[i]:X_test[0,i] for i in indexes}
     feats = sorted(feats.items(), key=lambda x: x[1],reverse = True)[:10]
-    #print feats
+
 
     
     medLons = []
@@ -271,62 +261,6 @@ def geolocate(text):
     print city
     return medLat,medLon,feats,entropyW,KLW,[1],city,cities
 
-'''
-def geolocate_multiple(text):
-    global vectorizer,clf, classLatMedian, classLonMedian
-
-    classLatMean, classLonMedian, classLatMedian, classLonMean, userLocation, categories, trainUsers, trainClasses, testUsers,testClasses, devUsers, devClasses = pickle.load(open('C:/Users/bahar/Desktop/model100h.pkl','rb'))
-    del userLocation, trainUsers, trainClasses, testUsers,testClasses, devUsers, devClasses
-    clf = pickle.load(open('C:/Users/bahar/Desktop/clfModel100h.pkl','rb'))
-    vectorizer = pickle.load(open('C:/Users/bahar/Desktop/vectorizer100h.pkl','rb'))
-
-
-#    text = "here is melbourne and sydney"
-    X_test = [text]
-    X_test = vectorizer.transform(X_test)
-    features = vectorizer.get_feature_names()
-
-
-    pred = clf.predict(X_test)[0]
-    prediction = categories[pred]
-    print prediction
-    probs = clf.predict_proba(X_test)[0]
-    print probs.argmax()
-    print max(probs)
-    #print probs[-10:]
-    print probs.argsort()[-10:]
-    preds = probs.argsort()[:-10:-1]
-    print preds
-    
-    
-    indexes = X_test.nonzero()
-    feats = {features[i]:X_test[0,i] for i in indexes[1]}
-    feats = sorted(feats.items(), key=lambda x: x[1],reverse = True)[:5]
-    print feats
-
-#pred = clf.predict_proba(X_test)
-#print pred
-#print pred[0][849]
-#print dir()
-    medLons = []
-    medLats = []
-    weights = []
-    for i in range(0, len(preds)):
-        prediction = categories[preds[i]]
-        medianlat = classLatMedian[prediction]
-        medianlon = classLonMedian[prediction]
-        meanlat = classLatMean[prediction]
-        meanlon = classLonMean[prediction]
-        predictionCoordinate = 'median'
-
-        cc2_bah = lib_grid_search.zoom_search(medianlat,medianlon)
-        print cc2_bah
-        medLats.append(medianlat)
-        medLons.append(medianlon)
-        weights.append(probs[preds[i]])
-    print weights
-    return medLats,medLons,feats,weights
-'''
 
 @route("/static/<filepath:path>")
 def server_static(filepath):
@@ -363,9 +297,8 @@ def do_show():
     return  template('index', lats=lats, longs=longs,text=text[:200],mentionsLocs=mentionsLocs,accountName=accountName,entropy=entropy,KLD=KL,features=feats,weights=weights,city=city,filledText=filledText,cities=cities)
     
 
-#classLatMean, classLonMedian, classLatMedian, classLonMean, userLocation, categories, trainUsers, trainClasses, testUsers,testClasses, devUsers, devClasses = pickle.load(open('C:/Users/bahar/Desktop/modelall.cpkl','rb'))
-#del userLocation, trainUsers, trainClasses, testUsers,testClasses, devUsers, devClasses
-#clf = cPickle.load(open('C:/Users/bahar/Desktop/clfModelall.cpkl','rb'))
-#vectorizer = pickle.load(open('C:/Users/bahar/Desktop/vectorizerall.cpkl','rb'))
+categories, classLatMedian, classLonMedian = pickle.load(open('modelallClean.pkl','rb'))
+clf = cPickle.load(open('C:/Users/bahar/Desktop/clfModelall.cpkl','rb'))
+vectorizer = pickle.load(open('C:/Users/bahar/Desktop/vectorizerall.cpkl','rb'))
 
 run(host='localhost', port=8080, debug=True)
