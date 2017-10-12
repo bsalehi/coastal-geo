@@ -20,7 +20,12 @@ Python
 
 How to run?
 1) download and extract the three files shared at dropbox (link above)
-2) run start.py
+2) get token access to twitter and fill the following variables in start.py
+   access_token = ""
+    access_token_secret = ""
+    consumer_key = ""
+    consumer_secret = ""
+3) run start.py
 
 
 
