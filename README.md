@@ -13,4 +13,17 @@ Outputs:
 6) The next most probable predicted locations are listed under the map
 
 
+Requires:
+Python
+3 saved files/models shared at https://www.dropbox.com/sh/sgsfd7fgusnux1i/AADwxQtzQDcIrL_lTR5TEMdpa?dl=0
+ 
+
+How to run?
+1) download and extract the three files shared at dropbox (link above)
+2) run start.py
+
+
+
+
+
 
